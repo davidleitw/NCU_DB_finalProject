@@ -36,7 +36,7 @@ CREATE TABLE "select_record" (
 	sid VARCHAR(122)  NOT NULL,
 	-- @select_result
 	-- @中選: 0
-	-- @落選: -1 
+	-- @落選: -1
 	-- @備取順位: > 0
 	select_result INTEGER NOT NULL CHECK (select_result > -2)
 );

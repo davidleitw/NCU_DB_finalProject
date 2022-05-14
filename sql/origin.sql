@@ -14,7 +14,7 @@ CREATE TABLE "course_data" (
 	"student_name"	varchar(20),
 	"student_dept"	varchar(30),
 	"student_grade"	INTEGER,
-	"student_status"	varchar(10),
+	"student_status" varchar(10),
 	"student_class"	varchar(1),
 	"select_result"	varchar(10),
 	"course_score"	NUMERIC,
