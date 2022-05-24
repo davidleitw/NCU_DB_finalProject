@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
@@ -243,16 +243,18 @@ func createCourseRecordTable(db *sql.DB) {
 }
 
 func main() {
-	db, err := sql.Open("sqlite3", "test.db")
-	if err != nil {
-		log.Println(err)
-	}
-	defer db.Close()
+	// db, err := sql.Open("sqlite3", "test.db")
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// defer db.Close()
 
-	createCourseLocationTable(db)
-	createStudentTable(db)
-	createTeacherTable(db)
-	createCourseTable(db)
-	createSelectRecordTable(db)
-	createCourseRecordTable(db)
+	// createCourseLocationTable(db)
+	// createStudentTable(db)
+	// createTeacherTable(db)
+	// createCourseTable(db)
+	// createSelectRecordTable(db)
+	// createCourseRecordTable(db)
+	a := uuid.NewString()
+	fmt.Println(a, len(a))
 }
