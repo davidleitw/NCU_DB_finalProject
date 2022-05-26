@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"strings"
 
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
@@ -73,6 +74,14 @@ func createStudentTable(db *sql.DB) {
 		VALUES (?, ?, ?, ?, ?, ?);`
 
 	for _, s := range students {
+		switch {
+		case strings.HasSuffix(s.dept, "研究所"):
+			s.grade += 4
+		case strings.HasSuffix(s.dept, "博士班"):
+			s.grade += 6
+		default:
+		}
+
 		_, err := db.Exec(stmt, &s.sid, &s.name, &s.dept, &s.grade, &s.class, &s.status)
 		if err != nil {
 			panic(err)
