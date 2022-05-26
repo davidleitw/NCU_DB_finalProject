@@ -165,6 +165,14 @@ func createStudentTable(db *sql.DB) {
 		VALUES (?, ?, ?, ?, ?, ?);`
 
 	for _, s := range students {
+		switch {
+		case strings.HasSuffix(s.dept, "研究所"):
+			s.grade += 4
+		case strings.HasSuffix(s.dept, "博士班"):
+			s.grade += 6
+		default:
+		}
+
 		_, err := db.Exec(stmt, &s.sid, &s.name, &s.dept, &s.grade, &s.class, &s.status)
 		if err != nil {
 			panic(err)
@@ -174,6 +182,8 @@ func createStudentTable(db *sql.DB) {
 ```
 
 這邊我們的 sql 分成兩段(應該有更好的寫法)，一開始利用 **DISTINCT** 選出所有不重複的學生資料，撈出來後利用 uuid 的 library 生成一個新的 `sid`，最後再一筆一筆 **Insert** 到 新建立的 `student` table。
+
+因為及格成績會隨著大學/研究所變動，所以我們直接把 `grade` 欄位調整成類似美國的計算制度(研一 -> grade: 5, 研二 -> grade: 6)，這樣在下 query 的時候比較好處理。
 
 ### 遷移 teacher 資料並且分配 tid
 
@@ -370,6 +380,79 @@ func createCourseRecordTable(db *sql.DB) {
 - 這裡的 query 其實是針對測資寫的，並不準確，因為我們發現只要沒有中選的人成績都會擺 **NULL**，就直接拿這個來判斷是否中選，但正統一點的寫法其實是去看 `select_result`。
 - 撈到 `course_name` 以及 `student_name` 之後就去對應的 table 撈出他們的 ID
 
+## 後續補充問題，請用 sql 解決以下事件
+
+#### 1102 學期的 A0001微積分，因故上課地點要由 K205 修改到 K210 大教室。
+
+```sql
+UPDATE course set course_room_name = "K210" 
+    WHERE course_name = "微積分" AND semester = "1102";
+```
+
+#### 請列出 1102 學期的 A0002 計算機概論的修課名單 
+
+```sql
+SELECT student.sid, student.student_name, student.student_dept
+    FROM student, course, course_record
+        WHERE course_record.sid == student.sid 
+            AND course_record.cid == course.cid
+            AND course.course_name == "計算機概論"
+            AND course.semester == "1102";
+```
+
+#### 請列出 1102 學期，成績不及格的修課學生資料 (大學部低於 60 分，碩博 70 分)
+
+```sql
+SELECT course.course_name, student.sid, student.student_name, course_record.course_score 
+    FROM student, course, course_record
+        WHERE course_record.sid == student.sid
+            AND (student.student_dept < 5 AND course_record.course_score < 60)
+            OR (student.student_dept >= 5 AND course_record.course_score < 70)
+    GROUP BY student.sid;
+```
+
+#### 以中選比例 (中選人次/加選人次 * 100) 推測 1102 學期受學生歡迎的熱門加選課程
+
+```sql
+SELECT course.course_name, teacher.teacher_name, COUNT(
+    CASE 
+        WHEN select_record.select_result == "中選"
+        THEN 1
+        ELSE 0
+    END), COUNT(select_record.select_result), ROUND(SUM(
+    CASE
+        WHEN select_record.select_result == "中選"
+        THEN 1
+        ELSE 0
+    END)*100.0 / COUNT(select_record.select_result), 2)
+    FROM course, select_record, teacher
+    WHERE course.cid == select_record.cid 
+        AND course.tid == teacher.tid 
+        AND course.semester == "1102"
+    GROUP BY course.course_name;
+
+```
+
+#### 請列出 1102 學期線上課程教學評量平均分數及總分，找出大受好評的線上課程
+
+```sql
+SELECT course.course_name, teacher.teacher_name, SUM(
+    CASE
+        WHEN course_record.feedback_rank IS NOT NULL
+        THEN course_record.feedback_rank
+        ELSE NULL
+    END), ROUND(AVG(
+    CASE
+        WHEN course_record.feedback_rank IS NOT NULL
+        THEN course_record.feedback_rank
+        ELSE NULL
+    END), 2)
+    FROM course, course_record, teacher
+    WHERE course.cid == course_record.cid 
+        AND course.tid == teacher.tid 
+        AND course.semester == "1102"
+    GROUP BY course.course_name;
+```
 
 ## Reference
 - [sqlite3-uuid](https://github.com/benwebber/sqlite3-uuid)
