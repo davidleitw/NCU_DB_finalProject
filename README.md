@@ -33,7 +33,7 @@
 
 ### Course
 
-![](https://i.imgur.com/buMaFdd.png)
+![](https://i.imgur.com/qlSIaST.png)
 
 - 把課程抽出來，並且加上 `cid` 當作 Primary key
 - 刪除 `course_is_online`，如果是線上課程， `course_room_name` 為 **NULL** 即可表達
@@ -42,19 +42,19 @@
 
 ### Course_location
 
-![](https://i.imgur.com/ispE1dD.png)
+![](https://i.imgur.com/hJIHHB7.png)
 
 - `Room_name` 作為 Primary key, 讓 `Room_building` 不用重複記，其實更有效率的作法是 `Room_name` 的字串裡面加上 building 的資訊，但是這樣感覺跟原本題目改太多了，就沒有進一步的優化
 
 ### Teacher
 
-![](https://i.imgur.com/CbGvdzP.png)
+![](https://i.imgur.com/aEwNYQl.png)
 
 - `tid` 作為 Primary key, 雖然題目沒有過多描述教師的欄位，但是一般情況會紀錄很多相關的基本資料，所以抽出來一個獨立的 table 並且配上 ID。
 
 ### Student
 
-![](https://i.imgur.com/PVLKEQY.png)
+![](https://i.imgur.com/I3Nxjyr.png)
 
 - `sid` 為 Primary key
 - `student_name` 的長度設 746，是目前世界紀錄擁有最長名字的人，~~防止例外事件~~
@@ -62,7 +62,7 @@
 
 ### Select_record
 
-![](https://i.imgur.com/BunuiIp.png)
+![](https://i.imgur.com/q9efz46.png)
 
 - `select_record` 存放選課紀錄
     - 由 `cid` 以及 `sid` 分別代表課程以及學生
@@ -73,7 +73,7 @@
 
 ### Course_record
 
-![](https://i.imgur.com/soRzWYo.png)
+![](https://i.imgur.com/aJHOTTe.png)
 
 - `course_record` 存放的是正式選到課的紀錄
     - `rid` 為 Primary key
@@ -382,14 +382,14 @@ func createCourseRecordTable(db *sql.DB) {
 
 ## 後續補充問題，請用 sql 解決以下事件
 
-#### 1102 學期的 A0001微積分，因故上課地點要由 K205 修改到 K210 大教室。
+#### 1.1102 學期的 A0001微積分，因故上課地點要由 K205 修改到 K210 大教室。
 
 ```sql
 UPDATE course set course_room_name = "K210" 
     WHERE course_name = "微積分" AND semester = "1102";
 ```
 
-#### 請列出 1102 學期的 A0002 計算機概論的修課名單 
+#### 2.請列出 1102 學期的 A0002 計算機概論的修課名單 
 
 ```sql
 SELECT student.sid, student.student_name, student.student_dept
@@ -400,7 +400,10 @@ SELECT student.sid, student.student_name, student.student_dept
             AND course.semester == "1102";
 ```
 
-#### 請列出 1102 學期，成績不及格的修課學生資料 (大學部低於 60 分，碩博 70 分)
+![](https://i.imgur.com/3QUQZMC.png)
+
+
+#### 3.請列出 1102 學期，成績不及格的修課學生資料 (大學部低於 60 分，碩博 70 分)
 
 ```sql
 SELECT course.course_name, student.sid, student.student_name, course_record.course_score
@@ -413,48 +416,43 @@ SELECT course.course_name, student.sid, student.student_name, course_record.cour
 	GROUP BY student.sid;
 ```
 
-#### 以中選比例 (中選人次/加選人次 * 100) 推測 1102 學期受學生歡迎的熱門加選課程
+![](https://i.imgur.com/xcZvPlg.png)
+
+#### 4.以中選比例 (中選人次/加選人次 * 100) 推測 1102 學期受學生歡迎的熱門加選課程
 
 ```sql
-SELECT course.course_name, teacher.teacher_name, COUNT(
+SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, COUNT(
     CASE 
         WHEN select_record.select_result == "中選"
         THEN 1
         ELSE 0
-    END), COUNT(select_record.select_result), ROUND(SUM(
+    END) AS 中選人次, COUNT(select_record.select_result) AS 加選人次, ROUND(SUM(
     CASE
         WHEN select_record.select_result == "中選"
         THEN 1
         ELSE 0
-    END)*100.0 / COUNT(select_record.select_result), 2)
+    END)*100.0 / COUNT(select_record.select_result), 2) AS 中選比例
     FROM course, select_record, teacher
     WHERE course.cid == select_record.cid 
         AND course.tid == teacher.tid 
         AND course.semester == "1102"
     GROUP BY course.course_name;
-
 ```
 
-#### 請列出 1102 學期線上課程教學評量平均分數及總分，找出大受好評的線上課程
+![](https://i.imgur.com/CuICyyN.png)
+
+#### 5.請列出 1102 學期線上課程教學評量平均分數及總分，找出大受好評的線上課程
 
 ```sql
-SELECT course.course_name, teacher.teacher_name, SUM(
-    CASE
-        WHEN course_record.feedback_rank IS NOT NULL
-        THEN course_record.feedback_rank
-        ELSE NULL
-    END), ROUND(AVG(
-    CASE
-        WHEN course_record.feedback_rank IS NOT NULL
-        THEN course_record.feedback_rank
-        ELSE NULL
-    END), 2)
+SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, SUM(course_record.feedback_rank) AS 教學評量總分, ROUND(AVG(course_record.feedback_rank)) AS 教學評量平均分數
     FROM course, course_record, teacher
     WHERE course.cid == course_record.cid 
         AND course.tid == teacher.tid 
         AND course.semester == "1102"
     GROUP BY course.course_name;
 ```
+
+![](https://i.imgur.com/5QLAhYL.png)
 
 ## Reference
 - [sqlite3-uuid](https://github.com/benwebber/sqlite3-uuid)
