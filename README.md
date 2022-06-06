@@ -435,7 +435,8 @@ SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, SUM(
     WHERE course.cid == select_record.cid 
         AND course.tid == teacher.tid 
         AND course.semester == "1102"
-    GROUP BY course.cid;
+    GROUP BY course.cid
+    ORDER BY 中選比例 DESC;
 ```
 
 ![](https://i.imgur.com/7jfLFvb.png)
@@ -450,7 +451,8 @@ SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, SUM(c
 		WHERE course.cid == course_record.cid
 			AND course.tid == teacher.tid
 			AND course.semester == "1102"
-	GROUP BY course.cid;
+	GROUP BY course.cid
+	ORDER BY 教學評量平均分數 DESC;
 ```
 
 ![](https://i.imgur.com/xAIgtgy.png)

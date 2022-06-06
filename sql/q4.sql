@@ -13,4 +13,5 @@ SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, SUM(
     WHERE course.cid == select_record.cid 
         AND course.tid == teacher.tid 
         AND course.semester == "1102"
-    GROUP BY course.cid;
+    GROUP BY course.cid
+    ORDER BY 中選比例 DESC;
