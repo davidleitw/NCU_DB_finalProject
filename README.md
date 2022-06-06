@@ -403,12 +403,14 @@ SELECT student.sid, student.student_name, student.student_dept
 #### 請列出 1102 學期，成績不及格的修課學生資料 (大學部低於 60 分，碩博 70 分)
 
 ```sql
-SELECT course.course_name, student.sid, student.student_name, course_record.course_score 
-    FROM student, course, course_record
-        WHERE course_record.sid == student.sid
-            AND (student.student_dept < 5 AND course_record.course_score < 60)
-            OR (student.student_dept >= 5 AND course_record.course_score < 70)
-    GROUP BY student.sid;
+SELECT course.course_name, student.sid, student.student_name, course_record.course_score
+	FROM student, course, course_record
+		WHERE course_record.sid == student.sid
+			AND course_record.cid == course.cid
+			AND course.semester == "1102"
+			AND ((student.student_dept < 5 AND course_record.course_score < 60)
+			OR (student.student_dept >= 5 AND course_record.course_score < 70))
+	GROUP BY student.sid;
 ```
 
 #### 以中選比例 (中選人次/加選人次 * 100) 推測 1102 學期受學生歡迎的熱門加選課程
