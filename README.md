@@ -317,8 +317,7 @@ func createSelectRecordTable(db *sql.DB) {
 				JOIN course
 					ON course_data.course_name == course.course_name
 				JOIN student
-					ON course_data.student_name == student.student_name
-		GROUP BY sid;
+					ON course_data.student_name == student.student_name;
 	`
 
 	_, err := db.Exec(stme)
@@ -329,7 +328,7 @@ func createSelectRecordTable(db *sql.DB) {
 ```
 
 - `cid`, `sid` 需要利用 **JOIN** 的方式從 `course`, `student` 獲得
-- 留了 `select_result` 欄位可以實作備取機制，這功能要求的架設太多(包含系所的優先順序，在網頁上的登記時間等等，所以沒有實作)
+- 留了 `select_result` 欄位可以實作備取機制，這功能要求的假設太多(包含系所的優先順序，在網頁上的登記時間等等，所以沒有實作)
 
 
 ### 遷移 course_record 資料
@@ -400,7 +399,7 @@ SELECT student.sid, student.student_name, student.student_dept
             AND course.semester == "1102";
 ```
 
-![](https://i.imgur.com/3QUQZMC.png)
+![](https://i.imgur.com/1xw7iOr.png)
 
 
 #### 3.請列出 1102 學期，成績不及格的修課學生資料 (大學部低於 60 分，碩博 70 分)
@@ -416,7 +415,7 @@ SELECT course.course_name, student.sid, student.student_name, course_record.cour
 	GROUP BY student.sid;
 ```
 
-![](https://i.imgur.com/xcZvPlg.png)
+![](https://i.imgur.com/qb69Ckb.png)
 
 #### 4.以中選比例 (中選人次/加選人次 * 100) 推測 1102 學期受學生歡迎的熱門加選課程
 
@@ -439,7 +438,8 @@ SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, SUM(
     GROUP BY course.course_name;
 ```
 
-![](https://i.imgur.com/CuICyyN.png)
+![](https://i.imgur.com/7jfLFvb.png)
+
 
 #### 5.請列出 1102 學期線上課程教學評量平均分數及總分，找出大受好評的線上課程
 
@@ -452,7 +452,7 @@ SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, SUM(c
     GROUP BY course.course_name;
 ```
 
-![](https://i.imgur.com/5QLAhYL.png)
+![](https://i.imgur.com/xAIgtgy.png)
 
 ## Reference
 - [sqlite3-uuid](https://github.com/benwebber/sqlite3-uuid)
