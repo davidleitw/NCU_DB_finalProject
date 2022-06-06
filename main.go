@@ -195,10 +195,8 @@ func createSelectRecordTable(db *sql.DB) {
 				JOIN course
 					ON course_data.course_name == course.course_name
 				JOIN student
-					ON course_data.student_name == student.student_name
-		GROUP BY sid;
+					ON course_data.student_name == student.student_name;
 	`
-
 	_, err := db.Exec(stme)
 	if err != nil {
 		panic(err)
