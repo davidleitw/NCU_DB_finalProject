@@ -421,7 +421,7 @@ SELECT course.course_name, student.sid, student.student_name, course_record.cour
 #### 4.以中選比例 (中選人次/加選人次 * 100) 推測 1102 學期受學生歡迎的熱門加選課程
 
 ```sql
-SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, COUNT(
+SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, SUM(
     CASE 
         WHEN select_record.select_result == "中選"
         THEN 1
