@@ -439,7 +439,7 @@ SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, SUM(
     ORDER BY 中選比例 DESC;
 ```
 
-![](https://i.imgur.com/7jfLFvb.png)
+![](https://i.imgur.com/Ov3HvWU.jpg)
 
 
 #### 5.請列出 1102 學期線上課程教學評量平均分數及總分，找出大受好評的線上課程
@@ -455,7 +455,7 @@ SELECT course.course_name AS 課名, teacher.teacher_name AS 授課教師, SUM(c
 	ORDER BY 教學評量平均分數 DESC;
 ```
 
-![](https://i.imgur.com/xAIgtgy.png)
+![](https://i.imgur.com/va0zRLV.jpg)
 
 ## Reference
 - [sqlite3-uuid](https://github.com/benwebber/sqlite3-uuid)
